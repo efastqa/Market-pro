@@ -1,0 +1,19 @@
+{
+  "appId": "qa.marketpro.app",
+  "appName": "MarketPro Qatar",
+  "webDir": "dist",
+  "bundledWebRuntime": false,
+  "backgroundColor": "#0f172a",
+  "server": {
+    "androidScheme": "https"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 2000,
+      "backgroundColor": "#8A1538",
+      "showSpinner": false,
+      "androidSplashResourceName": "splash",
+      "androidScaleType": "CENTER_CROP"
+    }
+  }
+}

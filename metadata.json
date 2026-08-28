@@ -1,0 +1,6 @@
+{
+  "name": "MarketPro Qatar - Buy & Sell Marketplace",
+  "description": "Qatar's premier online marketplace for buying and selling cars, properties, electronics, luxury items, and services with interactive map, real-time chat, and admin panel.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

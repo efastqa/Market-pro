@@ -1,0 +1,102 @@
+{
+  "entities": {
+    "Listing": {
+      "title": "Listing",
+      "description": "A marketplace listing for vehicles, real estate, electronics, luxury items, etc.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "titleAr": { "type": "string" },
+        "category": { "type": "string" },
+        "price": { "type": "number" },
+        "condition": { "type": "string" },
+        "status": { "type": "string" },
+        "featuredTier": { "type": "string" },
+        "isFeatured": { "type": "boolean" },
+        "location": { "type": "object" },
+        "images": { "type": "array" },
+        "seller": { "type": "object" },
+        "createdAt": { "type": "string" },
+        "description": { "type": "string" }
+      },
+      "required": ["id", "title", "category", "price", "status"]
+    },
+    "UserAccount": {
+      "title": "UserAccount",
+      "description": "User profile and account settings",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "phone": { "type": "string" },
+        "isVerified": { "type": "boolean" },
+        "accountType": { "type": "string" }
+      },
+      "required": ["id", "name"]
+    },
+    "Conversation": {
+      "title": "Conversation",
+      "description": "Direct message thread between buyer and seller",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "listingId": { "type": "string" },
+        "buyerId": { "type": "string" },
+        "sellerId": { "type": "string" },
+        "messages": { "type": "array" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "listingId", "buyerId", "sellerId"]
+    },
+    "SavedSearchAlert": {
+      "title": "SavedSearchAlert",
+      "description": "Saved search notifications and match filters",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "query": { "type": "string" },
+        "category": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "userId"]
+    },
+    "PaymentTransaction": {
+      "title": "PaymentTransaction",
+      "description": "Payment records for ad boosts and featured listings",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "listingId": { "type": "string" },
+        "amount": { "type": "number" },
+        "status": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "amount", "status"]
+    }
+  },
+  "firestore": {
+    "/listings/{listingId}": {
+      "schema": "Listing",
+      "description": "Public and active listings collection"
+    },
+    "/users/{userId}": {
+      "schema": "UserAccount",
+      "description": "User profiles and verification data"
+    },
+    "/conversations/{conversationId}": {
+      "schema": "Conversation",
+      "description": "User chat threads"
+    },
+    "/saved_alerts/{alertId}": {
+      "schema": "SavedSearchAlert",
+      "description": "User saved alerts"
+    },
+    "/transactions/{transactionId}": {
+      "schema": "PaymentTransaction",
+      "description": "Payment records"
+    }
+  }
+}

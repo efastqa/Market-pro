@@ -1,0 +1,52 @@
+{
+  "name": "MarketPro Qatar - Buy & Sell Marketplace",
+  "short_name": "MarketPro Qatar",
+  "description": "Qatar's premier marketplace for cars, luxury properties, watches, electronics, jobs and services in Doha, Lusail & The Pearl.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0f172a",
+  "theme_color": "#8A1538",
+  "categories": ["shopping", "business", "lifestyle"],
+  "lang": "en",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Post Ad (+)",
+      "short_name": "Post Ad",
+      "description": "Sell your car, villa, watch or item in Qatar",
+      "url": "/?action=post-ad",
+      "icons": [{ "src": "/icon.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "Qatar Map Explorer",
+      "short_name": "Map",
+      "description": "Explore listings across Doha, Lusail & The Pearl",
+      "url": "/?view=map",
+      "icons": [{ "src": "/icon.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "Messages & Chat",
+      "short_name": "Chat",
+      "description": "Direct chat with buyers & sellers",
+      "url": "/?view=chat",
+      "icons": [{ "src": "/icon.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "Special Plate Numbers",
+      "short_name": "Plates",
+      "description": "Browse luxury Qatar license plates",
+      "url": "/?category=plates",
+      "icons": [{ "src": "/icon.svg", "sizes": "192x192" }]
+    }
+  ]
+}
