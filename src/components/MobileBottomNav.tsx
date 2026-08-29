@@ -33,8 +33,8 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
   onOpenAuth,
 }) => {
   return (
-    <nav className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-t border-slate-200 dark:border-slate-800 px-2 py-1.5 shadow-2xl">
-      <div className="flex items-center justify-around">
+    <nav className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-t border-slate-200 dark:border-slate-800 px-2 pt-1.5 pb-[max(0.375rem,env(safe-area-inset-bottom))] shadow-2xl">
+      <div className="flex items-center justify-around max-w-lg mx-auto">
         {/* Home */}
         <button
           onClick={() => onNavigate('home')}

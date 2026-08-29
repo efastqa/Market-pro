@@ -125,7 +125,7 @@
 .stagger-5 { animation-delay: 250ms; }
 .stagger-6 { animation-delay: 300ms; }
 
-/* Smooth page transitions */
+/* Smooth page transitions and mobile enhancements */
 html {
   scroll-behavior: smooth;
 }
@@ -134,4 +134,13 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   -webkit-tap-highlight-color: transparent;
   overflow-x: hidden;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Safe area insets for notched phones & tablets */
+.pb-safe {
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 4.5rem);
+}
+.pt-safe {
+  padding-top: env(safe-area-inset-top, 0px);
 }

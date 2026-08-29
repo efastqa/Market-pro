@@ -832,7 +832,7 @@ export default function App() {
       />
 
       {/* Main Container */}
-      <main id="marketplace-section" className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-10 space-y-8">
+      <main id="marketplace-section" className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10 space-y-6 sm:space-y-8 pb-20 md:pb-10">
         
         {/* Sponsored Billboard Ad Banner Strip */}
         <CommercialBannerStrip 
