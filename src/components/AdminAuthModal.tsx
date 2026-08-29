@@ -2,19 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { 
   ShieldAlert, 
   Lock, 
-  Unlock, 
   KeyRound, 
   Eye, 
   EyeOff, 
   X, 
-  CheckCircle2, 
   AlertCircle, 
   Clock, 
   Phone, 
-  Sparkles,
   Fingerprint
 } from 'lucide-react';
-import { PLATFORM_PHONE_DISPLAY, PLATFORM_WHATSAPP_LINK } from '../data/mockData';
+import { PLATFORM_PHONE_DISPLAY } from '../data/mockData';
 
 interface AdminAuthModalProps {
   isOpen: boolean;
@@ -111,12 +108,6 @@ export const AdminAuthModal: React.FC<AdminAuthModalProps> = ({
         }
       }
     }, 350);
-  };
-
-  const handleQuickFill = () => {
-    const currentPass = getStoredAdminPassword();
-    setPassword(currentPass);
-    setErrorMsg('');
   };
 
   if (!isOpen) return null;
@@ -239,27 +230,6 @@ export const AdminAuthModal: React.FC<AdminAuthModalProps> = ({
               </button>
             </form>
           )}
-
-          {/* Quick Demo Helper / Default Password Info */}
-          <div className="p-3.5 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold text-amber-400 flex items-center gap-1">
-                <Sparkles className="w-3 h-3 text-amber-400" />
-                Default Master Admin Password:
-              </span>
-              <button
-                type="button"
-                onClick={handleQuickFill}
-                className="text-[10px] font-bold px-2 py-0.5 rounded-lg bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 border border-amber-500/30 transition-colors"
-              >
-                Auto-Fill Default PIN
-              </button>
-            </div>
-            <div className="flex items-center justify-between text-xs text-slate-400 font-mono bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-800">
-              <span className="text-white font-bold">{getStoredAdminPassword()}</span>
-              <span className="text-[10px] text-slate-500 font-sans">(Customizable in Settings)</span>
-            </div>
-          </div>
 
           {/* Qatar Emergency WhatsApp Hotline */}
           <div className="pt-2 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-400">
