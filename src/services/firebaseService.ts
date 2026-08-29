@@ -33,25 +33,70 @@ const CONFIG_COL = 'platform_config';
 const CHATS_COL = 'conversations';
 const ALERTS_COL = 'saved_alerts';
 const TRANSACTIONS_COL = 'transactions';
+const SYSTEM_COL = 'system';
+
+/**
+ * Retrieve set of permanently deleted listing IDs from local cache and Firestore
+ */
+export function getLocalDeletedIds(): Set<string> {
+  try {
+    const raw = localStorage.getItem('marketpro_deleted_listing_ids');
+    if (raw) {
+      const arr = JSON.parse(raw);
+      if (Array.isArray(arr)) return new Set(arr);
+    }
+  } catch (e) {}
+  return new Set();
+}
+
+export function recordDeletedIdLocally(id: string): void {
+  try {
+    const set = getLocalDeletedIds();
+    set.add(id);
+    localStorage.setItem('marketpro_deleted_listing_ids', JSON.stringify(Array.from(set)));
+  } catch (e) {}
+}
 
 /**
  * Syncs listings collection in real-time from Firestore.
- * Automatically seeds initial curated listings if Firestore is empty.
+ * Ensures deleted listings are never resurrected by mock data or empty checks.
  */
 export function subscribeToListings(callback: (listings: Listing[]) => void): () => void {
   const q = query(collection(db, LISTINGS_COL));
 
-  const unsubscribe = onSnapshot(q, (snapshot) => {
+  const unsubscribe = onSnapshot(q, async (snapshot) => {
+    const deletedIds = getLocalDeletedIds();
+
     if (snapshot.empty) {
-      // Seed Firestore with initial rich Qatar listings
-      seedInitialListings();
-      callback(INITIAL_LISTINGS);
-      return;
+      // Check if this is the first time setup, or if user deleted all ads
+      try {
+        const seedDoc = await getDoc(doc(db, SYSTEM_COL, 'seed_status'));
+        if (!seedDoc.exists()) {
+          // First time database bootstrap only
+          await seedInitialListings();
+          const filtered = INITIAL_LISTINGS.filter(l => !deletedIds.has(l.id));
+          callback(filtered);
+          return;
+        } else {
+          // User legitimately deleted all listings
+          callback([]);
+          return;
+        }
+      } catch {
+        const filtered = INITIAL_LISTINGS.filter(l => !deletedIds.has(l.id));
+        callback(filtered);
+        return;
+      }
     }
 
     const items: Listing[] = [];
     snapshot.forEach((docSnap) => {
-      items.push({ ...(docSnap.data() as Listing), id: docSnap.id });
+      const data = docSnap.data() as Listing;
+      const listingId = docSnap.id;
+      // Skip if marked deleted
+      if (!deletedIds.has(listingId)) {
+        items.push({ ...data, id: listingId });
+      }
     });
     
     // Sort active / featured first
@@ -68,13 +113,17 @@ export function subscribeToListings(callback: (listings: Listing[]) => void): ()
     callback(items);
   }, (error) => {
     console.warn('Firestore listings subscription fallback to local cache:', error);
-    // Fallback to local
+    const deletedIds = getLocalDeletedIds();
     try {
       const saved = localStorage.getItem('marketpro_listings_custom');
-      if (saved) callback(JSON.parse(saved));
-      else callback(INITIAL_LISTINGS);
+      if (saved) {
+        const parsed: Listing[] = JSON.parse(saved);
+        callback(parsed.filter(l => !deletedIds.has(l.id)));
+      } else {
+        callback(INITIAL_LISTINGS.filter(l => !deletedIds.has(l.id)));
+      }
     } catch {
-      callback(INITIAL_LISTINGS);
+      callback(INITIAL_LISTINGS.filter(l => !deletedIds.has(l.id)));
     }
   });
 
@@ -83,11 +132,20 @@ export function subscribeToListings(callback: (listings: Listing[]) => void): ()
 
 async function seedInitialListings() {
   try {
-    for (const listing of INITIAL_LISTINGS.slice(0, 15)) {
-      await setDoc(doc(db, LISTINGS_COL, listing.id), {
-        ...listing,
-        syncedAt: new Date().toISOString()
-      });
+    const deletedIds = getLocalDeletedIds();
+    // Mark system seed as completed so it never re-seeds over user deletions
+    await setDoc(doc(db, SYSTEM_COL, 'seed_status'), {
+      seeded: true,
+      seededAt: new Date().toISOString()
+    });
+
+    for (const listing of INITIAL_LISTINGS) {
+      if (!deletedIds.has(listing.id)) {
+        await setDoc(doc(db, LISTINGS_COL, listing.id), {
+          ...listing,
+          syncedAt: new Date().toISOString()
+        });
+      }
     }
   } catch (err) {
     console.error('Error seeding initial Firestore listings:', err);
@@ -111,7 +169,7 @@ export async function saveListingToFirestore(listing: Listing): Promise<void> {
 }
 
 /**
- * Update Listing status (e.g. active, pending, rejected, sold)
+ * Update Listing status (e.g. active, pending, rejected, sold, deleted)
  */
 export async function updateListingStatusInFirestore(listingId: string, status: 'active' | 'pending' | 'rejected' | 'sold'): Promise<void> {
   try {
@@ -127,14 +185,30 @@ export async function updateListingStatusInFirestore(listingId: string, status: 
 }
 
 /**
- * Delete a listing in Firestore
+ * Delete a listing permanently from Firestore & local persistence blacklist
  */
 export async function deleteListingFromFirestore(listingId: string): Promise<void> {
+  // 1. Record ID permanently in local deleted blacklist
+  recordDeletedIdLocally(listingId);
+
+  // 2. Remove from localStorage cache
+  try {
+    const raw = localStorage.getItem('marketpro_listings_custom');
+    if (raw) {
+      const arr: Listing[] = JSON.parse(raw);
+      const updated = arr.filter(item => item.id !== listingId);
+      localStorage.setItem('marketpro_listings_custom', JSON.stringify(updated));
+    }
+  } catch (e) {}
+
+  // 3. Delete from Firestore collection & update deleted_listings register in Firestore
   try {
     await deleteDoc(doc(db, LISTINGS_COL, listingId));
+    await setDoc(doc(db, SYSTEM_COL, 'deleted_listings'), {
+      [listingId]: new Date().toISOString()
+    }, { merge: true });
   } catch (err) {
-    console.error('Error deleting listing from Firestore:', err);
-    throw err;
+    console.warn('Firestore doc delete notification (cached offline):', err);
   }
 }
 

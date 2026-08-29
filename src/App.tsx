@@ -31,7 +31,9 @@ import {
   updateListingStatusInFirestore, 
   deleteListingFromFirestore,
   recordTransactionInFirestore,
-  saveSearchAlertToFirestore
+  saveSearchAlertToFirestore,
+  getLocalDeletedIds,
+  recordDeletedIdLocally
 } from './services/firebaseService';
 
 // Components
@@ -88,11 +90,15 @@ import {
 export default function App() {
   // State Management with LocalStorage persistence for Admin customizations
   const [listings, setListings] = useState<Listing[]>(() => {
+    const deletedIds = getLocalDeletedIds();
     try {
       const saved = localStorage.getItem('marketpro_listings_custom');
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed: Listing[] = JSON.parse(saved);
+        return parsed.filter(l => !deletedIds.has(l.id));
+      }
     } catch (e) {}
-    return INITIAL_LISTINGS;
+    return INITIAL_LISTINGS.filter(l => !deletedIds.has(l.id));
   });
 
   const [commercialBanners, setCommercialBanners] = useState<CommercialBannerAd[]>(() => {
@@ -129,7 +135,7 @@ export default function App() {
   // Automatically subscribe to real-time Firestore sync
   useEffect(() => {
     const unsubscribe = subscribeToListings((liveListings) => {
-      if (liveListings && liveListings.length > 0) {
+      if (Array.isArray(liveListings)) {
         setListings(liveListings);
       }
     });
@@ -650,6 +656,7 @@ export default function App() {
   };
 
   const handleDeleteListing = (id: string) => {
+    recordDeletedIdLocally(id);
     setListings((prev) => prev.filter(l => l.id !== id));
     deleteListingFromFirestore(id).catch(console.warn);
   };
